@@ -10,12 +10,19 @@ class MentionFilters(BaseModel):
     sentiment: Optional[str] = None  # positive, neutral, negative
     date_from: Optional[str] = None  # YYYY-MM-DD
     date_to: Optional[str] = None  # YYYY-MM-DD
-
+    search: Optional[str] = None
+    mentioned: Optional[bool] = None
 
 class MentionsRequest(BaseModel):
     page: int = 1
     per_page: int = 25
     filters: Optional[MentionFilters] = None
+    sort_by: Optional[str] = "created_at"
+    sort_order: Optional[str] = "desc"
+
+class SummaryRequest(BaseModel):
+    date_from: Optional[str] = None
+    date_to: Optional[str] = None
 
 
 class TrendsRequest(BaseModel):
@@ -52,3 +59,23 @@ class TrendPoint(BaseModel):
 
 class TrendsResponse(BaseModel):
     data: list[TrendPoint]
+
+class ModelDistribution(BaseModel):
+    model: str
+    count: int
+
+class SentimentDistribution(BaseModel):
+    sentiment: str
+    count: int
+
+class SourceDistribution(BaseModel):
+    source: str
+    count: int
+
+class SummaryResponse(BaseModel):
+    total_mentions: int
+    mentioned_count: int
+    avg_position: Optional[float]
+    models: list[ModelDistribution]
+    sentiments: list[SentimentDistribution]
+    sources: list[SourceDistribution]

@@ -14,7 +14,7 @@ export const apiClient = axios.create({
 
 export const MentionsService = {
     getMentions: async (data: any) => {
-        const response = await apiClient.post('/mentions', data);
+        const response = await apiClient.post('/mentions/', data);
         return response.data;
     },
     getSummary: async () => {

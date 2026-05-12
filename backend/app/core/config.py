@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     # DB configuration
     DATABASE_URI: str = os.getenv(
         "DATABASE_URI", 
-        "postgresql+asyncpg://admin:password@localhost:5432/brandmentions"
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/aiclicks"
     )
 
     class Config:

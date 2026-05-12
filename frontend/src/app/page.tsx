@@ -199,8 +199,8 @@ export default function Dashboard() {
       <header className="sticky top-0 z-50 glass border-b border-border max-w-7xl mx-auto w-full rounded-md">
         <div className="flex h-16 items-center px-6">
           <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground p-2 rounded-xl shadow-lg shadow-primary/20">
-              <Zap size={20} fill="currentColor" />
+            <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center">
+              <img src="/logos/logo.svg" alt="Aiclicks Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-xl tracking-tight text-gradient">Aiclicks Intelligence</span>
           </div>

@@ -1,7 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.schemas.mention import PaginatedRequest, PaginatedMentionResponse, SummaryResponse, TrendsResponse
+from app.schemas.mention import (
+    PaginatedRequest, 
+    PaginatedMentionResponse, 
+    SummaryResponse, 
+    TrendsResponse, 
+    ExtendedSummaryResponse, 
+    TrendPoint
+)
 from app.repositories.mention_repository import MentionRepository
 
 router = APIRouter()

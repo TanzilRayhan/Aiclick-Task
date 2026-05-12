@@ -43,7 +43,7 @@
     --border: #e2e8f0;
     --input: #e2e8f0;
     --ring: #6366f1;
-    --glass-bg: rgba(255, 255, 255, 0.9);
+    --glass-bg: rgba(255, 255, 255, 1.0s);
     --glass-border: rgba(226, 232, 240, 0.5);
   }
 

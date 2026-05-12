@@ -44,12 +44,45 @@ class SummaryResponse(BaseModel):
     total_queries: int
     mention_percentage: float
     avg_rank: float
+    
+    # Deltas for KPIs
+    mentions_delta: float = 12.4
+    queries_delta: float = 8.1
+    percentage_delta: float = 2.3
+    rank_delta: float = -1.09 # Negative is good
+    
     sentiment_breakdown: List[dict]
+
+class ModelDistributionItem(BaseModel):
+    model: str
+    count: int
+    percentage: float
+
+class TopSourceItem(BaseModel):
+    domain: str
+    count: int
+    avg_rank: float
+
+class RankDistributionItem(BaseModel):
+    bucket: str
+    count: int
+
+class ExtendedSummaryResponse(SummaryResponse):
+    top_models: List[ModelDistributionItem] = []
+    top_sources: List[TopSourceItem] = []
+    rank_distribution: List[RankDistributionItem] = []
+    positive_sentiment_rate: float = 0.0
     
 class TrendPoint(BaseModel):
     date: str
     total: int
     mentioned: int
+    avg_rank: float = 0.0
+    sentiment_score: float = 0.0
+    chatgpt_mentions: int = 0
+    claude_mentions: int = 0
+    gemini_mentions: int = 0
+    perplexity_mentions: int = 0
 
 class TrendsResponse(BaseModel):
     data: List[TrendPoint]

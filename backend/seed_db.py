@@ -68,48 +68,79 @@ async def seed_database():
         try:
             print("🌱 Starting database seeding...")
             
+            # Create tables if they don't exist
+            print("🏗️ Creating database tables...")
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            
             # Create AI Models
-            print("📝 Creating AI models...")
+            print("📝 Checking AI models...")
             ai_models = {}
             for model_data in AI_MODELS_DATA:
-                model = AIModel(**model_data)
-                session.add(model)
-                ai_models[model_data["name"]] = model
+                # Check if exists
+                stmt = select(AIModel).where(AIModel.name == model_data["name"])
+                res = await session.execute(stmt)
+                existing = res.scalar_one_or_none()
+                
+                if not existing:
+                    print(f"   + Adding model: {model_data['name']}")
+                    model = AIModel(**model_data)
+                    session.add(model)
+                    ai_models[model_data["name"]] = model
+                else:
+                    print(f"   ~ Model exists: {model_data['name']}")
+                    ai_models[model_data["name"]] = existing
             await session.commit()
             
             # Create Sentiment Types
-            print("📝 Creating sentiment types...")
+            print("📝 Checking sentiment types...")
             sentiments = {}
             for sentiment_data in SENTIMENTS_DATA:
-                sentiment = SentimentType(**sentiment_data)
-                session.add(sentiment)
-                sentiments[sentiment_data["label"]] = sentiment
+                # Check if exists
+                stmt = select(SentimentType).where(SentimentType.label == sentiment_data["label"])
+                res = await session.execute(stmt)
+                existing = res.scalar_one_or_none()
+                
+                if not existing:
+                    print(f"   + Adding sentiment: {sentiment_data['label']}")
+                    sentiment = SentimentType(**sentiment_data)
+                    session.add(sentiment)
+                    sentiments[sentiment_data["label"]] = sentiment
+                else:
+                    print(f"   ~ Sentiment exists: {sentiment_data['label']}")
+                    sentiments[sentiment_data["label"]] = existing
             await session.commit()
             
-            # Create Sample Mentions
-            print("📝 Creating sample mentions...")
-            base_date = datetime.utcnow() - timedelta(days=30)
+            # Create Sample Mentions only if database is sparse
+            stmt = select(func.count()).select_from(Mention)
+            res = await session.execute(stmt)
+            count = res.scalar()
             
-            for i in range(100):
-                mention = Mention(
-                    id=uuid.uuid4(),
-                    query_text=SAMPLE_QUERIES[i % len(SAMPLE_QUERIES)],
-                    source_url=SAMPLE_SOURCES[i % len(SAMPLE_SOURCES)],
-                    ai_model=list(ai_models.keys())[i % len(ai_models)],
-                    sentiment=list(sentiments.keys())[i % len(sentiments)],
-                    mentioned=i % 3 != 0,  # 2/3 mentions, 1/3 no mention
-                    rank_position=(i % 20) + 1,
-                    mention_date=base_date + timedelta(days=i % 30, hours=i % 24),
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow(),
-                )
-                session.add(mention)
+            if count < 50:
+                print(f"📝 Creating sample mentions ({count} existing)...")
+                base_date = datetime.utcnow() - timedelta(days=30)
+                
+                for i in range(100):
+                    mention = Mention(
+                        id=uuid.uuid4(),
+                        query_text=SAMPLE_QUERIES[i % len(SAMPLE_QUERIES)],
+                        source_url=SAMPLE_SOURCES[i % len(SAMPLE_SOURCES)],
+                        ai_model=list(ai_models.keys())[i % len(ai_models)],
+                        sentiment=list(sentiments.keys())[i % len(sentiments)],
+                        mentioned=i % 3 != 0,
+                        rank_position=(i % 20) + 1,
+                        mention_date=base_date + timedelta(days=i % 30, hours=i % 24),
+                        created_at=datetime.utcnow(),
+                        updated_at=datetime.utcnow(),
+                    )
+                    session.add(mention)
+                await session.commit()
+                print("✅ Successfully seeded database with sample mentions!")
+            else:
+                print(f"✅ Database already contains {count} mentions. Skipping sample data.")
             
-            await session.commit()
-            print("✅ Successfully seeded database!")
-            print(f"   - {len(AI_MODELS_DATA)} AI models")
-            print(f"   - {len(SENTIMENTS_DATA)} sentiment types")
-            print(f"   - 100 sample mentions")
+            print(f"   - {len(AI_MODELS_DATA)} AI models configured")
+            print(f"   - {len(SENTIMENTS_DATA)} sentiment types configured")
             
         except Exception as e:
             print(f"❌ Error seeding database: {e}")

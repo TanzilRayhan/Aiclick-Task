@@ -409,7 +409,7 @@ export default function Dashboard() {
                     />
                     <Area yAxisId="left" type="monotone" name="Brand Mentions" dataKey="mentioned" stroke="var(--primary)" fillOpacity={1} fill="url(#colorMention)" strokeWidth={4} />
                     <Line yAxisId="left" type="monotone" name="Total Queries" dataKey="total" stroke="var(--muted-foreground)" strokeWidth={1} strokeDasharray="6 4" dot={false} opacity={0.3} />
-                    <Line yAxisId="right" type="monotone" name="Avg Rank" dataKey="avg_rank" stroke="var(--amber-500)" strokeWidth={3} dot={{ r: 4, fill: "var(--card)", strokeWidth: 3 }} activeDot={{ r: 6 }} shadow="0 0 10px rgba(245, 158, 11, 0.5)" />
+                    <Line yAxisId="right" type="monotone" name="Avg Rank" dataKey="avg_rank" stroke="var(--amber-500)" strokeWidth={3} dot={{ r: 4, fill: "var(--card)", strokeWidth: 3 }} activeDot={{ r: 6 }} />
                   </ComposedChart>
                 </ResponsiveContainer>
               ) : (

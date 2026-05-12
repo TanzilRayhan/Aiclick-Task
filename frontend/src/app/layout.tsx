@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/theme-provider";
 
+import { Sidebar } from "../components/layout/Sidebar";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,7 +27,12 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="theme-preference"
         >
-          {children}
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <div className="flex-1 md:pl-64 flex flex-col min-h-screen overflow-x-hidden">
+              {children}
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

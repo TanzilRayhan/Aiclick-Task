@@ -14,7 +14,7 @@ def create_app() -> FastAPI:
     # Set all CORS enabled origins
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"], # Tighten this up for Prod
+        allow_origins=["http://localhost:3000", "https://aiclick-task.vercel.app"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

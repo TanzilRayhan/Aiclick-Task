@@ -194,9 +194,9 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* MOBILE HEADER */}
-      <div className="xl:hidden fixed top-0 left-0 right-0 z-[100] h-16 glass border-b border-border px-4 flex items-center justify-between">
+      <div className="xl:hidden fixed top-0 left-0 right-0 z-[100] h-16 bg-white border-b border-border px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={() => window.dispatchEvent(new CustomEvent('toggle-mobile-sidebar'))}
             className="p-2 -ml-2 rounded-xl hover:bg-secondary transition-colors"
           >
@@ -273,7 +273,7 @@ export default function Dashboard() {
               Monitor AI model brand visibility, ranking performance, and sentiment intelligence across the leading neural networks.
             </p>
           </motion.div>
-          
+
           <div className="flex items-center gap-3">
             <button className="h-12 px-8 rounded-2xl bg-foreground text-background font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:opacity-90 transition-all shadow-xl">
               <Download size={16} />
@@ -371,7 +371,7 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
-            
+
             <div className="h-[380px] w-full relative">
               {isTrendsLoading ? (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -391,6 +391,7 @@ export default function Dashboard() {
                       dataKey="date"
                       axisLine={false}
                       tickLine={false}
+                      minTickGap={40}
                       tick={{ fill: 'var(--muted-foreground)', fontSize: 10, fontWeight: 700 }}
                       tickFormatter={(val) => {
                         try {
@@ -402,14 +403,43 @@ export default function Dashboard() {
                     <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 10, fontWeight: 700 }} dx={-10} />
                     <YAxis yAxisId="right" orientation="right" reversed axisLine={false} tickLine={false} tick={{ fill: 'var(--amber-500)', fontSize: 10, fontWeight: 700 }} dx={10} />
                     <Tooltip content={<CustomTooltip trendView={trendView} />} />
-                    <Legend 
-                      verticalAlign="bottom" 
+                    <Legend
+                      verticalAlign="bottom"
                       align="center"
-                      wrapperStyle={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', paddingTop: '40px' }} 
+                      wrapperStyle={{ fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', paddingTop: '40px' }}
                     />
-                    <Area yAxisId="left" type="monotone" name="Brand Mentions" dataKey="mentioned" stroke="var(--primary)" fillOpacity={1} fill="url(#colorMention)" strokeWidth={4} />
-                    <Line yAxisId="left" type="monotone" name="Total Queries" dataKey="total" stroke="var(--muted-foreground)" strokeWidth={1} strokeDasharray="6 4" dot={false} opacity={0.3} />
-                    <Line yAxisId="right" type="monotone" name="Avg Rank" dataKey="avg_rank" stroke="var(--amber-500)" strokeWidth={3} dot={{ r: 4, fill: "var(--card)", strokeWidth: 3 }} activeDot={{ r: 6 }} />
+                    <Area
+                      yAxisId="left"
+                      type="monotone"
+                      name="Brand Mentions"
+                      dataKey="mentioned"
+                      stroke="var(--primary)"
+                      fillOpacity={1}
+                      fill="url(#colorMention)"
+                      strokeWidth={3}
+                      activeDot={{ r: 4, strokeWidth: 0, fill: 'var(--primary)' }}
+                    />
+                    <Line
+                      yAxisId="left"
+                      type="monotone"
+                      name="Total Queries"
+                      dataKey="total"
+                      stroke="var(--muted-foreground)"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      dot={false}
+                      opacity={0.3}
+                    />
+                    <Line
+                      yAxisId="right"
+                      type="monotone"
+                      name="Avg Rank"
+                      dataKey="avg_rank"
+                      stroke="var(--amber-500)"
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--amber-500)' }}
+                    />
                   </ComposedChart>
                 </ResponsiveContainer>
               ) : (
@@ -417,32 +447,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* QUICK INTELLIGENCE SUMMARY */}
-            <div className="mt-auto pt-8 border-t border-border/50 grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Highest Visibility</p>
-                <div className="flex items-center gap-2">
-                  <div className="p-1 rounded-md bg-secondary border border-border">
-                    <img src={MODEL_LOGOS['chatgpt']} className="w-4 h-4" alt="" />
-                  </div>
-                  <span className="text-sm font-black">ChatGPT Enterprise</span>
-                </div>
-              </div>
-              <div className="space-y-1 border-x border-border/30 px-6 hidden sm:block">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Ranking Momentum</p>
-                <div className="flex items-center gap-2">
-                  <Zap size={14} className="text-amber-500 fill-amber-500" />
-                  <span className="text-sm font-black">+12.4% Avg Improvement</span>
-                </div>
-              </div>
-              <div className="space-y-1 pl-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Top Driver Context</p>
-                <div className="flex items-center gap-2 text-sm font-black">
-                  <Globe size={14} className="text-blue-500" />
-                  technical_documentation.md
-                </div>
-              </div>
-            </div>
+
           </motion.div>
         </div>
 
@@ -456,7 +461,7 @@ export default function Dashboard() {
             className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-sm flex flex-col"
           >
             <h3 className="text-xl font-bold tracking-tight mb-6">Sentiment Intelligence</h3>
-            
+
             <div className="space-y-8 flex-1">
               {(() => {
                 const apiData = summary?.sentiment_breakdown || [];
@@ -465,7 +470,7 @@ export default function Dashboard() {
                   { sentiment: "Neutral", count: 25, color: "bg-slate-400" },
                   { sentiment: "Negative", count: 10, color: "bg-rose-500" },
                 ];
-                
+
                 const merged = defaults.map(d => {
                   const found = apiData.find((a: any) => a.sentiment === d.sentiment);
                   return found ? { ...d, count: found.count } : d;
@@ -523,7 +528,7 @@ export default function Dashboard() {
                       <Cell fill="#33cccc" />
                       <Cell fill="#7c3aed" />
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}
                     />
                   </PieChart>
@@ -699,8 +704,8 @@ export default function Dashboard() {
                   </tr>
                 ) : (
                   mentions.map((mention) => (
-                    <tr 
-                      key={mention.id} 
+                    <tr
+                      key={mention.id}
                       className="group hover:bg-primary/[0.03] transition-all duration-300 cursor-pointer"
                       onClick={() => setSelectedMention(mention)}
                     >
@@ -718,11 +723,10 @@ export default function Dashboard() {
                         </div>
                       </td>
                       <td className="py-7 px-4">
-                        <span className={`inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
-                          mention.sentiment === 'Positive' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' :
-                          mention.sentiment === 'Negative' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]' :
-                          'bg-slate-500/10 text-slate-500 border-slate-500/20'
-                        }`}>
+                        <span className={`inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${(mention.sentiment || '').toLowerCase() === 'positive' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.1)]' :
+                            (mention.sentiment || '').toLowerCase() === 'negative' ? 'bg-rose-500/10 text-rose-500 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' :
+                              'bg-indigo-500/10 text-indigo-500 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.05)]'
+                          }`}>
                           {mention.sentiment || 'Neutral'}
                         </span>
                       </td>
@@ -829,7 +833,7 @@ export default function Dashboard() {
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">ID: #{selectedMention.id.toString().substring(0, 8)}</p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setSelectedMention(null)}
                   className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center hover:bg-muted transition-all active:scale-90"
                 >
@@ -910,8 +914,8 @@ export default function Dashboard() {
 function CustomTooltip({ active, payload, label, trendView }: any) {
   if (active && payload && payload.length) {
     return (
-      <div className="glass p-5 rounded-2xl border border-border shadow-2xl min-w-[200px]">
-        <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground mb-3">
+      <div className="bg-card/95 backdrop-blur-xl p-5 rounded-2xl border border-border/50 shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)] min-w-[220px] ring-1 ring-white/10">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-4 border-b border-border/50 pb-3">
           {label ? (trendView === 'daily' ? format(new Date(label), 'MMMM dd, yyyy') : `Week of ${format(new Date(label), 'MMM dd')}`) : '—'}
         </p>
         <div className="space-y-3">
@@ -921,7 +925,9 @@ function CustomTooltip({ active, payload, label, trendView }: any) {
                 <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.color }}></div>
                 <span className="text-[11px] font-medium text-muted-foreground">{p.name}:</span>
               </div>
-              <span className="text-[11px] font-bold">{p.value}{p.name === 'Avg Rank' ? '' : ''}</span>
+              <span className="text-[11px] font-bold">
+                {p.name === 'Avg Rank' ? Number(p.value).toFixed(1) : p.value.toLocaleString()}
+              </span>
             </div>
           ))}
         </div>

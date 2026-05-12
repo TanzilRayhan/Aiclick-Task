@@ -89,14 +89,6 @@ class MentionRepository:
                 
         total = sum(v for v in breakdown.values())
                 
-        if total < 5:
-            # High-fidelity fallback for very sparse data to keep the WOW factor
-            return [
-                {"sentiment": "Positive", "count": 65},
-                {"sentiment": "Neutral", "count": 25},
-                {"sentiment": "Negative", "count": 10}
-            ]
-
         return [
             {"sentiment": k, "count": int((v / total) * 100)}
             for k, v in breakdown.items()
@@ -112,31 +104,73 @@ class MentionRepository:
         rows = result.all()
         
         total = sum(r.count for r in rows)
-        
-        if total < 50:
-            # High-fidelity fallback for sparse data
-            return [
-                {"model": "ChatGPT", "count": 32, "percentage": 32.0},
-                {"model": "Gemini", "count": 25, "percentage": 25.0},
-                {"model": "Perplexity", "count": 24, "percentage": 24.0},
-                {"model": "Claude", "count": 18, "percentage": 18.0}
-            ]
+        if not total: return []
 
         return [
             {"model": r.ai_model, "count": r.count, "percentage": round((r.count / total) * 100, 1)}
             for r in rows
         ]
 
+    async def get_top_sources(self, limit: int = 5):
+        # Simplified domain extraction for the demo
+        query = select(
+            Mention.source_url,
+            func.count().label("count"),
+            func.avg(Mention.rank_position).label("avg_rank")
+        ).select_from(Mention).group_by(Mention.source_url).order_by(desc("count")).limit(limit)
+        
+        result = await self.session.execute(query)
+        rows = result.all()
+        
+        sources = []
+        for r in rows:
+            domain = (r.source_url or "Direct API").replace("https://", "").replace("http://", "").split('/')[0]
+            sources.append({
+                "domain": domain,
+                "count": r.count,
+                "avg_rank": round(float(r.avg_rank or 0), 1)
+            })
+        return sources
+
+    async def get_rank_distribution(self):
+        # Calculate buckets: #1-3, #4-10, #11-20, 20+
+        query = select(Mention.rank_position).select_from(Mention)
+        result = await self.session.execute(query)
+        ranks = result.scalars().all()
+        
+        distribution = {
+            "#1-3": 0,
+            "#4-10": 0,
+            "#11-20": 0,
+            "20+": 0
+        }
+        
+        for rank in ranks:
+            if not rank: continue
+            if rank <= 3: distribution["#1-3"] += 1
+            elif rank <= 10: distribution["#4-10"] += 1
+            elif rank <= 20: distribution["#11-20"] += 1
+            else: distribution["20+"] += 1
+            
+        return [{"bucket": k, "count": v} for k, v in distribution.items()]
+
     async def get_trends(self, days: int = 30):
         # Calculate daily trends
-        # In a real app, you'd use date_trunc or similar, but for SQLite/generic:
         query = select(
             func.date(Mention.mention_date).label("date"),
             func.count().label("total"),
-            func.sum(cast(Mention.mentioned, Integer)).label("mentioned")
+            func.sum(cast(Mention.mentioned, Integer)).label("mentioned"),
+            func.avg(Mention.rank_position).label("avg_rank")
         ).select_from(Mention).group_by(func.date(Mention.mention_date)).order_by(func.date(Mention.mention_date))
         
         result = await self.session.execute(query)
         rows = result.all()
         
-        return [{"date": str(r.date), "total": r.total, "mentioned": r.mentioned or 0} for r in rows]
+        return [
+            {
+                "date": str(r.date), 
+                "total": r.total, 
+                "mentioned": r.mentioned or 0,
+                "avg_rank": round(float(r.avg_rank or 0), 1)
+            } for r in rows
+        ]

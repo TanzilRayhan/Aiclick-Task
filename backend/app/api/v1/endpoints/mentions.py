@@ -32,6 +32,8 @@ async def get_summary(db: AsyncSession = Depends(get_db)):
         row = await repo.get_summary()
         sentiment_data = await repo.get_sentiment_breakdown()
         model_data = await repo.get_model_distribution()
+        top_sources = await repo.get_top_sources()
+        rank_dist = await repo.get_rank_distribution()
         
         if not row:
             return ExtendedSummaryResponse(
@@ -56,18 +58,8 @@ async def get_summary(db: AsyncSession = Depends(get_db)):
             avg_rank=avg_rank,
             sentiment_breakdown=sentiment_data,
             top_models=model_data,
-            top_sources=[
-                {"domain": "medium.com", "count": 1450, "avg_rank": 2.1},
-                {"domain": "reddit.com", "count": 1200, "avg_rank": 3.4},
-                {"domain": "github.com", "count": 890, "avg_rank": 1.5},
-                {"domain": "news.ycombinator.com", "count": 650, "avg_rank": 4.2}
-            ],
-            rank_distribution=[
-                {"bucket": "#1-3", "count": 4500},
-                {"bucket": "#4-10", "count": 3200},
-                {"bucket": "#11-20", "count": 1500},
-                {"bucket": "20+", "count": 800}
-            ],
+            top_sources=top_sources,
+            rank_distribution=rank_dist,
             positive_sentiment_rate=positive_rate
         )
     except Exception as e:
@@ -82,28 +74,14 @@ async def get_trends(days: int = Query(30), db: AsyncSession = Depends(get_db)):
         repo = MentionRepository(db)
         raw_data = await repo.get_trends(days=days)
         
-        import random
-        # Enrich trend data with simulated model breakdowns and sentiment for the premium chart
+        # Format the real data for the frontend
         enhanced_data = []
         for r in raw_data:
-            total = r["total"]
-            
-            # Simulate a realistic distribution
-            chatgpt = int(total * 0.35)
-            gemini = int(total * 0.25)
-            perplexity = int(total * 0.25)
-            claude = total - chatgpt - gemini - perplexity
-            
             enhanced_data.append(TrendPoint(
                 date=r["date"],
-                total=total,
+                total=r["total"],
                 mentioned=r["mentioned"],
-                avg_rank=random.uniform(2.0, 5.0),
-                sentiment_score=random.uniform(0.4, 0.8),
-                chatgpt_mentions=chatgpt,
-                claude_mentions=claude,
-                gemini_mentions=gemini,
-                perplexity_mentions=perplexity
+                avg_rank=r["avg_rank"]
             ))
             
         return TrendsResponse(data=enhanced_data)

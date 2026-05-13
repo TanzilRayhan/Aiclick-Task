@@ -90,7 +90,7 @@ class MentionRepository:
         total = sum(v for v in breakdown.values())
                 
         return [
-            {"sentiment": k, "count": int((v / total) * 100)}
+            {"sentiment": k, "count": v}
             for k, v in breakdown.items()
         ]
 

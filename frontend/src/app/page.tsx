@@ -194,7 +194,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* MOBILE HEADER */}
-      <div className="xl:hidden fixed top-0 left-0 right-0 z-[100] h-16 bg-white border-b border-border px-4 flex items-center justify-between">
+      <div className="xl:hidden fixed top-0 left-0 right-0 z-[100] h-16 glass border-b border-border px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('toggle-mobile-sidebar'))}
@@ -285,11 +285,11 @@ export default function Dashboard() {
         {/* KPI SECTION */}
         <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Total Mentions"
+            title="Total Queries"
             value={summary?.total_mentions}
             loading={isLoading}
             icon={<TrendingUp size={20} />}
-            trend={`+12.5% from last month`}
+            trend={`All Time Data`}
             trendIcon={<ArrowUpRight size={14} />}
             trendColor="text-emerald-500"
             delay={0.1}
@@ -524,9 +524,9 @@ export default function Dashboard() {
                       stroke="none"
                     >
                       <Cell fill="#10a37f" />
-                      <Cell fill="#4285f4" />
+                      <Cell fill="#D97858" />
+                      <Cell fill="#398BFF" />
                       <Cell fill="#33cccc" />
-                      <Cell fill="#7c3aed" />
                     </Pie>
                     <Tooltip
                       contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}
@@ -543,7 +543,7 @@ export default function Dashboard() {
                 { model: "Claude", percentage: 18 }
               ]).map((m: any, i: number) => (
                 <div key={m.model} className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                  <div className={`w-2 h-2 rounded-full ${["bg-[#10a37f]", "bg-[#4285f4]", "bg-[#33cccc]", "bg-[#7c3aed]"][i]}`}></div>
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ["#10a37f", "#D97858", "#398BFF", "#33cccc"][i] }}></div>
                   <span className="truncate">{m.model}</span>
                   <span className="ml-auto text-foreground">{m.percentage}%</span>
                 </div>
@@ -600,6 +600,12 @@ export default function Dashboard() {
               </div>
 
               <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-primary/5 border border-primary/10 animate-in fade-in slide-in-from-left-4 duration-500">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-widest whitespace-nowrap">
+                    {totalMentions.toLocaleString()}
+                  </span>
+                </div>
                 <div className="relative group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <input
@@ -724,8 +730,8 @@ export default function Dashboard() {
                       </td>
                       <td className="py-7 px-4">
                         <span className={`inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${(mention.sentiment || '').toLowerCase() === 'positive' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.1)]' :
-                            (mention.sentiment || '').toLowerCase() === 'negative' ? 'bg-rose-500/10 text-rose-500 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' :
-                              'bg-indigo-500/10 text-indigo-500 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.05)]'
+                          (mention.sentiment || '').toLowerCase() === 'negative' ? 'bg-rose-500/10 text-rose-500 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.1)]' :
+                            'bg-indigo-500/10 text-indigo-500 border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.05)]'
                           }`}>
                           {mention.sentiment || 'Neutral'}
                         </span>
@@ -922,7 +928,7 @@ function CustomTooltip({ active, payload, label, trendView }: any) {
           {payload.map((p: any, i: number) => (
             <div key={i} className="flex items-center justify-between gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.color }}></div>
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.color || (p.name === 'Avg Rank' ? '#f59e0b' : p.stroke) }}></div>
                 <span className="text-[11px] font-medium text-muted-foreground">{p.name}:</span>
               </div>
               <span className="text-[11px] font-bold">

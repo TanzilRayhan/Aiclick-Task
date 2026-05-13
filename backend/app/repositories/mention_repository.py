@@ -112,25 +112,37 @@ class MentionRepository:
         ]
 
     async def get_top_sources(self, limit: int = 5):
-        # Simplified domain extraction for the demo
+        # Fetch more to allow for aggregation
         query = select(
             Mention.source_url,
             func.count().label("count"),
             func.avg(Mention.rank_position).label("avg_rank")
-        ).select_from(Mention).group_by(Mention.source_url).order_by(desc("count")).limit(limit)
+        ).select_from(Mention).group_by(Mention.source_url).order_by(desc("count")).limit(limit * 5)
         
         result = await self.session.execute(query)
         rows = result.all()
         
-        sources = []
+        domain_map = {}
         for r in rows:
-            domain = (r.source_url or "Direct API").replace("https://", "").replace("http://", "").split('/')[0]
+            domain = (r.source_url or "Direct API").replace("https://", "").replace("http://", "").split('/')[0].lower()
+            if domain not in domain_map:
+                domain_map[domain] = {"count": 0, "sum_rank": 0, "rank_count": 0}
+            
+            domain_map[domain]["count"] += r.count
+            if r.avg_rank:
+                domain_map[domain]["sum_rank"] += float(r.avg_rank) * r.count
+                domain_map[domain]["rank_count"] += r.count
+        
+        sources = []
+        for domain, data in domain_map.items():
+            avg_rank = (data["sum_rank"] / data["rank_count"]) if data["rank_count"] > 0 else 0
             sources.append({
                 "domain": domain,
-                "count": r.count,
-                "avg_rank": round(float(r.avg_rank or 0), 1)
+                "count": data["count"],
+                "avg_rank": round(avg_rank, 1)
             })
-        return sources
+            
+        return sorted(sources, key=lambda x: x["count"], reverse=True)[:limit]
 
     async def get_rank_distribution(self):
         # Calculate buckets: #1-3, #4-10, #11-20, 20+

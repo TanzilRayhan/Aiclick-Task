@@ -115,28 +115,34 @@ async def seed_database():
             # Create Sample Mentions only if database is sparse
             stmt = select(func.count()).select_from(Mention)
             res = await session.execute(stmt)
-            count = res.scalar()
+            count = res.scalar() or 0
             
-            if count < 50:
-                print(f"📝 Creating sample mentions ({count} existing)...")
+            target_count = 10000
+            if count < target_count:
+                to_add = target_count - count
+                print(f"📝 Seeding {to_add} more mentions to reach {target_count} total...")
                 base_date = datetime.utcnow() - timedelta(days=30)
                 
-                for i in range(100):
+                for i in range(to_add):
                     mention = Mention(
                         id=uuid.uuid4(),
                         query_text=SAMPLE_QUERIES[i % len(SAMPLE_QUERIES)],
                         source_url=SAMPLE_SOURCES[i % len(SAMPLE_SOURCES)],
                         ai_model=list(ai_models.keys())[i % len(ai_models)],
                         sentiment=list(sentiments.keys())[i % len(sentiments)],
-                        mentioned=i % 3 != 0,
-                        rank_position=(i % 20) + 1,
-                        mention_date=base_date + timedelta(days=i % 30, hours=i % 24),
+                        mentioned=random.choice([True, False]),
+                        rank_position=random.randint(1, 20),
+                        mention_date=base_date + timedelta(days=random.randint(0, 29), hours=random.randint(0, 23)),
                         created_at=datetime.utcnow(),
                         updated_at=datetime.utcnow(),
                     )
                     session.add(mention)
+                    if i % 1000 == 0 and i > 0:
+                        await session.commit()
+                        print(f"   + Processed {i} records...")
+                        
                 await session.commit()
-                print("✅ Successfully seeded database with sample mentions!")
+                print(f"✅ Successfully seeded database. Total count now at {target_count}!")
             else:
                 print(f"✅ Database already contains {count} mentions. Skipping sample data.")
             

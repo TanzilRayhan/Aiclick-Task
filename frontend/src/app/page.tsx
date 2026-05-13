@@ -566,7 +566,7 @@ export default function Dashboard() {
                 { domain: "github.com", count: 890 },
                 { domain: "news.ycombinator.com", count: 650 }
               ]).map((source: any, i: number) => (
-                <div key={source.domain} className="space-y-2">
+                <div key={`${source.domain}-${i}`} className="space-y-2">
                   <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
                     <span className="truncate max-w-[150px]">{source.domain}</span>
                     <span className="text-muted-foreground">{source.count.toLocaleString()}</span>

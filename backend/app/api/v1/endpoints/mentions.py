@@ -52,7 +52,7 @@ async def get_summary(db: AsyncSession = Depends(get_db)):
         positive_rate = next((s["count"] for s in sentiment_data if s["sentiment"] == "Positive"), 0.0)
         
         return ExtendedSummaryResponse(
-            total_mentions=mentioned_count,
+            total_mentions=total_count,
             total_queries=total_count,
             mention_percentage=mention_percentage,
             avg_rank=avg_rank,
